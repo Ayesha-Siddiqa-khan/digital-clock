@@ -12,6 +12,7 @@ public sealed class WindowManager
     WidgetWindow? _widget;
     MainWindow? _main;
     WidgetEditWindow? _edit;
+    StopwatchWindow? _stopwatch;
 
     public WindowManager(IServiceProvider sp) { _sp = sp; }
 
@@ -68,6 +69,14 @@ public sealed class WindowManager
         _edit = new WidgetEditWindow(_sp.GetRequiredService<WidgetEditViewModel>());
         _edit.Closed += (_, _) => _edit = null;
         _edit.Show();
+    }
+
+    /// <summary>Opens the stopwatch window (it is independent of the clock widget).</summary>
+    public void ShowStopwatch()
+    {
+        _stopwatch ??= new StopwatchWindow(_sp.GetRequiredService<StopwatchViewModel>());
+        _stopwatch.Show();
+        _stopwatch.Activate();
     }
 
     public void Exit()

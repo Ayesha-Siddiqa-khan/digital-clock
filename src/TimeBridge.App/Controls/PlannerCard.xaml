@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="TimeBridge.App.Controls.PlannerCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:ctl="clr-namespace:TimeBridge.App.Controls">
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid>
+                                        <TextBlock Text="{Binding FormTitle}" FontSize="18" FontWeight="SemiBold" />
+                                        <Border Style="{StaticResource Pill}" HorizontalAlignment="Right">
+                                            <TextBlock Text="TIME CONVERTER" FontSize="10" FontWeight="SemiBold" Foreground="#C7D2FE" />
+                                        </Border>
+                                    </Grid>
+
+                                    <TextBlock Text="Meeting name" Style="{StaticResource FieldLabel}" />
+                                    <ui:TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Client catch-up" />
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="0.8*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="1.2*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Date (DD-MM-YYYY)" Style="{StaticResource FieldLabel}" />
+                                            <ctl:DateField Value="{Binding Date, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Style="{StaticResource FieldLabel}"><Run Text="{Binding HomeLabel, Mode=OneWay}" /><Run Text=" time" /></TextBlock>
+                                            <ctl:TimePicker Value="{Binding Time, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Text="Client's city / time zone" Style="{StaticResource FieldLabel}" />
+                                    <ComboBox ItemsSource="{Binding ClientChoices}" SelectedValuePath="Id" SelectedValue="{Binding SelectedClientId}"
+                                              HorizontalAlignment="Stretch">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock><Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding City, Mode=OneWay}" /></TextBlock>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <TextBlock Text="Alarm reminder" Style="{StaticResource FieldLabel}" />
+                                    <ComboBox ItemsSource="{Binding ReminderChoices}" DisplayMemberPath="Label" SelectedValuePath="Minutes"
+                                              SelectedValue="{Binding ReminderMinutes}" HorizontalAlignment="Stretch" />
+
+                                    <Border Margin="0,16,0,0" Padding="16,12" CornerRadius="10" Background="#141C36" BorderBrush="#2B3960" BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding PreviewIntro}" Style="{StaticResource Hint}" />
+                                            <TextBlock Text="{Binding PreviewTime}" FontSize="30" FontWeight="SemiBold" Margin="0,4,0,2" />
+                                            <TextBlock Text="{Binding PreviewDetail}" Style="{StaticResource Hint}" />
+                                            <TextBlock Text="{Binding PreviewError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" FontSize="12"
+                                                       Visibility="{Binding PreviewError, Converter={StaticResource NotNullToVis}}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Text="Notes (optional)" Style="{StaticResource FieldLabel}" />
+                                    <ui:TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="56" MaxHeight="110" />
+
+                                    <TextBlock Text="{Binding FormError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,12,0,0"
+                                               Visibility="{Binding FormError, Converter={StaticResource NotNullToVis}}" />
+                                    <TextBlock Text="{Binding StatusMessage}" Foreground="#4ADE80" TextWrapping="Wrap" Margin="0,12,0,0"
+                                               Visibility="{Binding StatusMessage, Converter={StaticResource NotNullToVis}}" />
+
+                                    <Grid Margin="0,16,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:Button Content="{Binding SaveText}" Command="{Binding SaveCommand}" Appearance="Primary" HorizontalAlignment="Stretch" />
+                                        <Button Grid.Column="2" Content="Copy time" Command="{Binding CopyTimeCommand}" Padding="16,6" />
+                                    </Grid>
+                                    <Button Content="Cancel editing" Command="{Binding CancelEditCommand}" HorizontalAlignment="Stretch" Margin="0,8,0,0"
+                                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </Border>
+</UserControl>

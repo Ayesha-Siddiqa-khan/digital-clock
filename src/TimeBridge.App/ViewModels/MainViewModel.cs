@@ -64,6 +64,7 @@ public partial class MainViewModel : ObservableObject
         foreach (var m in all.Take(6)) Upcoming.Add(MeetingItem.From(m, home, now));
     }
 
+    [RelayCommand] void OpenStopwatch() => _windows.ShowStopwatch();
     [RelayCommand] void ExitApp() => _windows.Exit();
     [RelayCommand] void Navigate(string? index) { if (int.TryParse(index, out var i)) NavIndex = i; }
 

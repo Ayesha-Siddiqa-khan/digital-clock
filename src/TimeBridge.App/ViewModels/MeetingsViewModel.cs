@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -52,7 +52,7 @@ public partial class MeetingsViewModel : ObservableObject
     public bool IsEditing => EditingId != null;
     public string SaveText => IsEditing ? "Save changes" : "Add meeting & alarm";
     public string FormTitle => IsEditing ? "Edit meeting" : "Plan a client meeting";
-    public string HomeLabel => TimeZoneCatalog.ShortName(_settings.Current.HomeTimeZoneId);
+    public string HomeLabel => _settings.Current.HomeTimeZoneId == TimeZoneCatalog.PakistanId ? "Pakistan" : TimeZoneCatalog.ShortName(_settings.Current.HomeTimeZoneId);
     public string HomeFullLabel => TimeZoneCatalog.LabelFor(_settings.Current.HomeTimeZoneId);
 
     partial void OnEditingIdChanged(int? value) { OnPropertyChanged(nameof(IsEditing)); OnPropertyChanged(nameof(SaveText)); OnPropertyChanged(nameof(FormTitle)); }

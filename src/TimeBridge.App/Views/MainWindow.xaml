@@ -7,38 +7,6 @@
         WindowStartupLocation="CenterScreen" ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica"
         Icon="pack://application:,,,/Assets/app.ico">
     <Window.Resources>
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="20" />
-        </Style>
-        <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,14,0,5" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-        </Style>
-        <Style x:Key="Eyebrow" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-        </Style>
-        <Style x:Key="PageTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="28" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-        <Style x:Key="Hint" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-        </Style>
-        <Style x:Key="Pill" TargetType="Border">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Padding" Value="9,2" />
-            <Setter Property="Background" Value="#262F5C" />
-        </Style>
 
         <!-- one meeting row, shared by Overview and Meetings pages -->
         <DataTemplate x:Key="MeetingCard">
@@ -171,6 +139,7 @@
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
+                        <Button Content="Open stopwatch" Command="{Binding OpenStopwatchCommand}" HorizontalAlignment="Stretch" Margin="0,8,0,0" ToolTip="Separate stopwatch window; starts only when you click Start" />
                         <Button Content="Exit TimeBridge" Command="{Binding ExitAppCommand}" HorizontalAlignment="Stretch" Margin="0,8,0,0" ToolTip="Quit completely (stops alarms)" />
                     </StackPanel>
                 </Border>
@@ -186,80 +155,82 @@
 
                 <!-- Overview -->
                 <TabItem>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <Grid Margin="20,10,32,28">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+                    <Grid Margin="20,10,32,28">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="430" />
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- time converter / meeting planner (same form as the Meetings page) -->
+                        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" DataContext="{Binding Meetings}">
+                            <ctl:PlannerCard />
+                        </ScrollViewer>
+
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <TextBlock Text="DESKTOP UTILITY" Style="{StaticResource Eyebrow}" />
                                 <TextBlock Text="Every time zone. One glance." Style="{StaticResource PageTitle}" Margin="0,4,0,0" />
-                                <TextBlock Text="Live Pakistan time next to your selected client, plus every upcoming meeting and alarm."
+                                <TextBlock Text="Type a Pakistan time on the left to see the client's local time instantly. Live clocks and upcoming meetings are below."
                                            Style="{StaticResource Hint}" Margin="0,6,0,0" />
-                            </StackPanel>
 
-                            <Grid Grid.Row="1" Margin="0,22,0,0" DataContext="{Binding Clock}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="1.1*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Style="{StaticResource Card}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding HomeLabel}" FontWeight="SemiBold" />
-                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                            <TextBlock Text="{Binding HomeTime}" FontSize="40" FontWeight="SemiBold" Foreground="{StaticResource AccentSoft}" />
-                                            <TextBlock Text="{Binding HomeAmPm}" FontSize="16" FontWeight="SemiBold" Margin="8,0,0,8" VerticalAlignment="Bottom" Foreground="{StaticResource AccentSoft}" />
+                                <Grid Margin="0,20,0,0" DataContext="{Binding Clock}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" /><ColumnDefinition Width="14" /><ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" /><RowDefinition Height="14" /><RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border Style="{StaticResource Card}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding HomeLabel}" FontWeight="SemiBold" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding HomeTime}" FontSize="36" FontWeight="SemiBold" Foreground="{StaticResource AccentSoft}" />
+                                                <TextBlock Text="{Binding HomeAmPm}" FontSize="15" FontWeight="SemiBold" Margin="8,0,0,7" VerticalAlignment="Bottom" Foreground="{StaticResource AccentSoft}" />
+                                            </StackPanel>
+                                            <TextBlock Style="{StaticResource Hint}"><Run Text="{Binding HomeDate, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding HomeOffset, Mode=OneWay}" /></TextBlock>
                                         </StackPanel>
-                                        <TextBlock Style="{StaticResource Hint}"><Run Text="{Binding HomeDate, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding HomeOffset, Mode=OneWay}" /></TextBlock>
-                                    </StackPanel>
-                                </Border>
-                                <Border Grid.Column="2" Style="{StaticResource Card}">
-                                    <StackPanel>
-                                        <ComboBox ItemsSource="{Binding Clients}" DisplayMemberPath="Label" SelectedItem="{Binding Selected}"
-                                                  HorizontalAlignment="Stretch" ToolTip="Client shown on the widget" />
-                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                            <TextBlock Text="{Binding ClientTime}" FontSize="40" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding ClientAmPm}" FontSize="16" FontWeight="SemiBold" Margin="8,0,0,8" VerticalAlignment="Bottom" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </Border>
+                                    <Border Grid.Column="2" Style="{StaticResource Card}">
+                                        <StackPanel>
+                                            <ComboBox ItemsSource="{Binding Clients}" DisplayMemberPath="Label" SelectedItem="{Binding Selected}"
+                                                      HorizontalAlignment="Stretch" ToolTip="Client shown on the widget" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding ClientTime}" FontSize="36" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding ClientAmPm}" FontSize="15" FontWeight="SemiBold" Margin="8,0,0,7" VerticalAlignment="Bottom" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                            <TextBlock Style="{StaticResource Hint}"><Run Text="{Binding ClientDate, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding ClientOffset, Mode=OneWay}" /></TextBlock>
                                         </StackPanel>
-                                        <TextBlock Style="{StaticResource Hint}"><Run Text="{Binding ClientDate, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding ClientOffset, Mode=OneWay}" /></TextBlock>
-                                    </StackPanel>
-                                </Border>
-                                <Border Grid.Column="4" Style="{StaticResource Card}">
-                                    <StackPanel>
-                                        <Grid>
-                                            <TextBlock Text="NEXT MEETING" Style="{StaticResource Eyebrow}" />
-                                            <TextBlock Text="{Binding NextCountdown}" FontWeight="SemiBold" HorizontalAlignment="Right" Foreground="{StaticResource AccentSoft}" />
-                                        </Grid>
-                                        <TextBlock Text="{Binding NextTitle}" FontSize="19" FontWeight="SemiBold" Margin="0,10,0,0" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding NextDetail}" Style="{StaticResource Hint}" Margin="0,4,0,0" />
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-
-                            <Grid Grid.Row="2" Margin="0,28,0,0">
-                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                                <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="Upcoming meetings" FontSize="18" FontWeight="SemiBold" />
-                                    <ui:Button Content="+ Plan a meeting" Appearance="Primary" HorizontalAlignment="Right"
-                                               Command="{Binding NavigateCommand}" CommandParameter="1" />
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource Card}">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="NEXT MEETING" Style="{StaticResource Eyebrow}" />
+                                                <TextBlock Text="{Binding NextCountdown}" FontWeight="SemiBold" HorizontalAlignment="Right" Foreground="{StaticResource AccentSoft}" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding NextTitle}" FontSize="19" FontWeight="SemiBold" Margin="0,10,0,0" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding NextDetail}" Style="{StaticResource Hint}" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                    </Border>
                                 </Grid>
-                                <StackPanel Grid.Row="1">
-                                    <ItemsControl ItemsSource="{Binding Upcoming}" ItemTemplate="{StaticResource MeetingCard}" />
-                                    <TextBlock Text="No upcoming meetings. Plan one to set an alarm.">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource Hint}">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Upcoming.Count}" Value="0">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
-                    </ScrollViewer>
+
+                                <TextBlock Text="Upcoming meetings" FontSize="18" FontWeight="SemiBold" Margin="0,26,0,12" />
+                                <ItemsControl ItemsSource="{Binding Upcoming}" ItemTemplate="{StaticResource MeetingCard}" />
+                                <TextBlock Text="No upcoming meetings. Plan one to set an alarm.">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Hint}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Upcoming.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </TabItem>
 
                 <!-- Meetings -->
@@ -272,75 +243,7 @@
                         </Grid.ColumnDefinitions>
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <Border Style="{StaticResource Card}">
-                                <StackPanel>
-                                    <Grid>
-                                        <TextBlock Text="{Binding FormTitle}" FontSize="18" FontWeight="SemiBold" />
-                                        <Border Style="{StaticResource Pill}" HorizontalAlignment="Right">
-                                            <TextBlock Text="TIME CONVERTER" FontSize="10" FontWeight="SemiBold" Foreground="#C7D2FE" />
-                                        </Border>
-                                    </Grid>
-
-                                    <TextBlock Text="Meeting name" Style="{StaticResource FieldLabel}" />
-                                    <ui:TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Client catch-up" />
-
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="Date (DD-MM-YYYY)" Style="{StaticResource FieldLabel}" />
-                                            <ctl:DateField Value="{Binding Date, Mode=TwoWay}" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Style="{StaticResource FieldLabel}"><Run Text="{Binding HomeLabel, Mode=OneWay}" /><Run Text=" time" /></TextBlock>
-                                            <ctl:TimePicker Value="{Binding Time, Mode=TwoWay}" />
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <TextBlock Text="Client's city / time zone" Style="{StaticResource FieldLabel}" />
-                                    <ComboBox ItemsSource="{Binding ClientChoices}" SelectedValuePath="Id" SelectedValue="{Binding SelectedClientId}"
-                                              HorizontalAlignment="Stretch">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock><Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding City, Mode=OneWay}" /></TextBlock>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-
-                                    <TextBlock Text="Alarm reminder" Style="{StaticResource FieldLabel}" />
-                                    <ComboBox ItemsSource="{Binding ReminderChoices}" DisplayMemberPath="Label" SelectedValuePath="Minutes"
-                                              SelectedValue="{Binding ReminderMinutes}" HorizontalAlignment="Stretch" />
-
-                                    <Border Margin="0,16,0,0" Padding="16,12" CornerRadius="10" Background="#141C36" BorderBrush="#2B3960" BorderThickness="1">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding PreviewIntro}" Style="{StaticResource Hint}" />
-                                            <TextBlock Text="{Binding PreviewTime}" FontSize="30" FontWeight="SemiBold" Margin="0,4,0,2" />
-                                            <TextBlock Text="{Binding PreviewDetail}" Style="{StaticResource Hint}" />
-                                            <TextBlock Text="{Binding PreviewError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" FontSize="12"
-                                                       Visibility="{Binding PreviewError, Converter={StaticResource NotNullToVis}}" />
-                                        </StackPanel>
-                                    </Border>
-
-                                    <TextBlock Text="Notes (optional)" Style="{StaticResource FieldLabel}" />
-                                    <ui:TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="56" MaxHeight="110" />
-
-                                    <TextBlock Text="{Binding FormError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,12,0,0"
-                                               Visibility="{Binding FormError, Converter={StaticResource NotNullToVis}}" />
-                                    <TextBlock Text="{Binding StatusMessage}" Foreground="#4ADE80" TextWrapping="Wrap" Margin="0,12,0,0"
-                                               Visibility="{Binding StatusMessage, Converter={StaticResource NotNullToVis}}" />
-
-                                    <Grid Margin="0,16,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <ui:Button Content="{Binding SaveText}" Command="{Binding SaveCommand}" Appearance="Primary" HorizontalAlignment="Stretch" />
-                                        <Button Grid.Column="2" Content="Copy time" Command="{Binding CopyTimeCommand}" Padding="16,6" />
-                                    </Grid>
-                                    <Button Content="Cancel editing" Command="{Binding CancelEditCommand}" HorizontalAlignment="Stretch" Margin="0,8,0,0"
-                                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}" />
-                                </StackPanel>
-                            </Border>
+                            <ctl:PlannerCard />
                         </ScrollViewer>
 
                         <Grid Grid.Column="2">

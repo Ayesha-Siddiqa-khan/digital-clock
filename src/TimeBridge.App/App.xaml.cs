@@ -101,6 +101,7 @@ public partial class App : Application
         sc.AddSingleton<MeetingsViewModel>();
         sc.AddSingleton<ClientsViewModel>();
         sc.AddSingleton<SettingsViewModel>();
+        sc.AddSingleton<StopwatchViewModel>();
         sc.AddSingleton<MainViewModel>();
         sc.AddTransient<WidgetEditViewModel>();
         return sc.BuildServiceProvider();
@@ -117,10 +118,13 @@ public partial class App : Application
             if (windows.IsWidgetShown) windows.HideWidget(keepVisibleOnNextLaunch: false);
             else _ = windows.ShowWidgetAsync();
         };
+        var stopwatch = new MenuItem { Header = "Stopwatch" };
+        stopwatch.Click += (_, _) => windows.ShowStopwatch();
         var exit = new MenuItem { Header = "Exit TimeBridge" };
         exit.Click += (_, _) => windows.Exit();
         menu.Items.Add(open);
         menu.Items.Add(widget);
+        menu.Items.Add(stopwatch);
         menu.Items.Add(new Separator());
         menu.Items.Add(exit);
         menu.Opened += (_, _) => widget.Header = windows.IsWidgetShown ? "Hide widget" : "Show widget";
