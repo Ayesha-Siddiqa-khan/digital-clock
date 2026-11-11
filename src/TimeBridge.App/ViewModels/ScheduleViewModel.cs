@@ -1,4 +1,6 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,14 +17,16 @@ public partial class ScheduleViewModel : ObservableObject
     readonly ScheduleService _schedule;
     readonly ClockTicker _ticker;
     readonly IDialogService _dialogs;
+    readonly ClientService _clientService;
+    List<Client> _clients = new();
     readonly DispatcherTimer _saveDebounce = new() { Interval = TimeSpan.FromMilliseconds(450) };
     bool _loading;
     int _lastMinute = -1;
     List<ScheduleItem> _items = new();
 
-    public ScheduleViewModel(SettingsService settings, ScheduleService schedule, ClockTicker ticker, IDialogService dialogs)
+    public ScheduleViewModel(SettingsService settings, ScheduleService schedule, ClockTicker ticker, IDialogService dialogs, ClientService clientService)
     {
-        _settings = settings; _schedule = schedule; _ticker = ticker; _dialogs = dialogs;
+        _settings = settings; _schedule = schedule; _ticker = ticker; _dialogs = dialogs; _clientService = clientService;
         _saveDebounce.Tick += async (_, _) => { _saveDebounce.Stop(); await SavePrayerSettingsAsync(); };
         for (var i = 0; i < 5; i++) Prayers.Add(new PrayerRow(i, SchedulePlanner.PrayerNames[i], QueueSave));
     }
@@ -52,6 +56,70 @@ public partial class ScheduleViewModel : ObservableObject
     [ObservableProperty] string _cityNote = "";
     [ObservableProperty] string _sunriseText = "";
     [ObservableProperty] string _todayText = "";
+
+    // sharing
+    public ObservableCollection<ShareTarget> ShareTargets { get; } = new();
+    public IReadOnlyList<ShareDayChoice> ShareDays { get; } = new[] { new ShareDayChoice(0, "Today"), new ShareDayChoice(1, "Tomorrow") };
+    [ObservableProperty] string _shareTargetKey = "none";
+    [ObservableProperty] int _shareDayOffset;
+    [ObservableProperty] bool _sharePrayers = true;
+    [ObservableProperty] bool _shareRoutine = true;
+    [ObservableProperty] string _shareText = "";
+
+    partial void OnShareTargetKeyChanged(string value) => UpdateShare();
+    partial void OnShareDayOffsetChanged(int value) => UpdateShare();
+    partial void OnSharePrayersChanged(bool value) => UpdateShare();
+    partial void OnShareRoutineChanged(bool value) => UpdateShare();
+
+    void UpdateShare()
+    {
+        if (_loading) return;
+        var s = _settings.Current;
+        var homeToday = DateOnly.FromDateTime(TimeConversion.FromUtc(_ticker.UtcNow, s.HomeTimeZoneId).Local);
+        var target = ShareTargets.FirstOrDefault(t => t.Key == ShareTargetKey);
+        ShareText = ScheduleShare.Build(homeToday.AddDays(ShareDayOffset), s, _items, SharePrayers, ShareRoutine, target?.ZoneId, target?.Name);
+    }
+
+    async Task LoadShareTargetsAsync()
+    {
+        _clients = await _clientService.GetAllAsync();
+        var keep = ShareTargetKey;
+        ShareTargets.Clear();
+        ShareTargets.Add(new ShareTarget("none", "No one (my time only)", null, null, "Share with"));
+        foreach (var c in _clients)
+            ShareTargets.Add(new ShareTarget($"client:{c.Id}", $"{c.Name} · {c.City}", c.TimeZoneId, c.City, "My clients"));
+        foreach (var z in TimeZoneCatalog.All().Where(z => z.Group != "All zones" && z.Id != TimeZoneCatalog.PakistanId))
+            ShareTargets.Add(new ShareTarget($"zone:{z.Id}", z.Label, z.Id, TimeZoneCatalog.ShortName(z.Id), "Any country / city"));
+        ShareTargetKey = ShareTargets.Any(t => t.Key == keep) ? keep : "none";
+        UpdateShare();
+    }
+
+    [RelayCommand]
+    void ShareWhatsApp()
+    {
+        var text = ShareText;
+        // wa.me opens WhatsApp (desktop app or WhatsApp Web) with the text ready; you choose who to send it to.
+        var url = "https://wa.me/?text=" + Uri.EscapeDataString(text);
+        try
+        {
+            if (url.Length > 1900)
+            {
+                Clipboard.SetText(text);
+                Process.Start(new ProcessStartInfo("https://web.whatsapp.com") { UseShellExecute = true });
+                _dialogs.Info("The schedule is long, so it was copied to the clipboard. Paste it into your WhatsApp chat.");
+                return;
+            }
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) { _dialogs.Error($"Could not open WhatsApp: {ex.Message}"); }
+    }
+
+    [RelayCommand]
+    void CopyShare()
+    {
+        try { Clipboard.SetText(ShareText); _dialogs.Info("Schedule copied. Paste it anywhere."); }
+        catch (System.Runtime.InteropServices.COMException) { _dialogs.Error("The clipboard is busy. Try again."); }
+    }
 
     // routine form
     [ObservableProperty] int? _editingId;
@@ -90,6 +158,8 @@ public partial class ScheduleViewModel : ObservableObject
     {
         _items = await _schedule.GetAllAsync(ScheduleCategory.Routine);
         Rebuild();
+        await LoadShareTargetsAsync();
+        _clientService.Changed += async (_, _) => await Ui.Run(LoadShareTargetsAsync);
         _schedule.Changed += async (_, _) => await Ui.Run(async () => { _items = await _schedule.GetAllAsync(ScheduleCategory.Routine); Rebuild(); });
         _settings.Changed += (_, _) => Ui.Run(Rebuild);
         _ticker.Tick += utc =>
@@ -176,6 +246,7 @@ public partial class ScheduleViewModel : ObservableObject
             foreach (var i in _items) Routine.Add(ScheduleRow.From(i));
         }
         finally { _loading = false; }
+        UpdateShare();
     }
 
     // ---- routine form ---------------------------------------------------------------------

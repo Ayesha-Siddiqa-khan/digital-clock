@@ -152,6 +152,40 @@
 
                 <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                     <StackPanel>
+                        <TextBlock Text="💬  Share my schedule" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
+                                   Text="Let clients know when you are busy. Choose their country or city and every time is shown in THEIR local time, with yours in brackets, so nobody has to convert. Then send it on WhatsApp." />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="140" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Share with (country / city or client)" Style="{StaticResource FieldLabel}" />
+                                <ComboBox ItemsSource="{Binding ShareTargets}" DisplayMemberPath="Label" SelectedValuePath="Key"
+                                          SelectedValue="{Binding ShareTargetKey}" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Day" Style="{StaticResource FieldLabel}" />
+                                <ComboBox ItemsSource="{Binding ShareDays}" DisplayMemberPath="Label" SelectedValuePath="Offset"
+                                          SelectedValue="{Binding ShareDayOffset}" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <CheckBox Content="Prayer times" IsChecked="{Binding SharePrayers}" />
+                            <CheckBox Content="My routine (sleep, rest, meals...)" IsChecked="{Binding ShareRoutine}" Margin="18,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="Message (you can edit it before sending)" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding ShareText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap"
+                                 MinHeight="150" MaxHeight="280" VerticalScrollBarVisibility="Auto" />
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <ui:Button Content="Send via WhatsApp" Command="{Binding ShareWhatsAppCommand}" Appearance="Primary" Padding="18,7" />
+                            <Button Content="Copy" Command="{Binding CopyShareCommand}" Padding="18,7" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <StackPanel>
                         <Grid>
                             <TextBlock Text="🌙  My routine" FontSize="18" FontWeight="SemiBold" />
                             <Button Content="Add suggested routine" Command="{Binding AddSuggestedCommand}" HorizontalAlignment="Right" Padding="12,4" />

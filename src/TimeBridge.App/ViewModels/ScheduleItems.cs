@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using TimeBridge.Core.Models;
 using TimeBridge.Core.Services;
 
@@ -34,6 +34,10 @@ public partial class DaysEditor : ObservableObject
 }
 
 public record AsrChoice(bool Hanafi, string Label);
+
+public record ShareTarget(string Key, string Label, string? ZoneId, string? Name, string Group);
+
+public record ShareDayChoice(int Offset, string Label);
 
 public record IntervalChoice(int Minutes, string Label);
 
