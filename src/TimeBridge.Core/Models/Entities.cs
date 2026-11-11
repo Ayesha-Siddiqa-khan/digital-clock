@@ -1,4 +1,4 @@
-namespace TimeBridge.Core.Models;
+﻿namespace TimeBridge.Core.Models;
 
 public enum MeetingStatus { Scheduled = 0, Cancelled = 1, Completed = 2 }
 
@@ -40,6 +40,30 @@ public class Reminder
     public DateTime? SnoozedUntilUtc { get; set; }
     public DateTime? FiredUtc { get; set; }
     public ReminderStatus Status { get; set; }
+}
+
+public enum ScheduleCategory { Routine = 0, Health = 1 }
+
+public enum ScheduleMode { Fixed = 0, Interval = 1 }
+
+/// <summary>A routine block (sleep, rest, lunch, ...) or a health reminder (water, walk, screen break, ...).
+/// Times are minutes after midnight in the user's home time zone.</summary>
+public class ScheduleItem
+{
+    public int Id { get; set; }
+    public ScheduleCategory Category { get; set; }
+    public string Kind { get; set; } = "Custom";
+    public string Name { get; set; } = "";
+    public string? Message { get; set; }
+    public ScheduleMode Mode { get; set; }
+    public int StartMinute { get; set; }
+    /// <summary>Routine: when the block ends. Interval reminders: end of the active window.</summary>
+    public int? EndMinute { get; set; }
+    public int? IntervalMinutes { get; set; }
+    /// <summary>Bit 0 = Monday ... bit 6 = Sunday.</summary>
+    public int DaysMask { get; set; } = 127;
+    public bool IsEnabled { get; set; } = true;
+    public int SortOrder { get; set; }
 }
 
 public class AppSetting

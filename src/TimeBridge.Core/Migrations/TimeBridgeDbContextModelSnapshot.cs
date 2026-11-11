@@ -138,6 +138,57 @@ namespace TimeBridge.Core.Migrations
                     b.ToTable("Reminders", (string)null);
                 });
 
+            modelBuilder.Entity("TimeBridge.Core.Models.ScheduleItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DaysMask")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EndMinute")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("IntervalMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StartMinute")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category", "SortOrder");
+
+                    b.ToTable("ScheduleItems", (string)null);
+                });
+
             modelBuilder.Entity("TimeBridge.Core.Models.WidgetState", b =>
                 {
                     b.Property<int>("Id")

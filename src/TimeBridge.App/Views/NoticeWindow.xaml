@@ -1,0 +1,38 @@
+<ui:FluentWindow x:Class="TimeBridge.App.Views.NoticeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="TimeBridge reminder" Width="420" SizeToContent="Height" MinHeight="240"
+        Topmost="True" ResizeMode="NoResize" WindowStartupLocation="Manual"
+        ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica"
+        Icon="pack://application:,,,/Assets/app.ico">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar Grid.Row="0" Title="TimeBridge · Reminder" ShowMaximize="False" ShowMinimize="False" />
+        <StackPanel Grid.Row="1" Margin="28,8,28,24">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="EmojiText" FontFamily="Segoe UI Emoji" FontSize="38" VerticalAlignment="Center" />
+                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="CategoryText" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="TitleText" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
+                </StackPanel>
+            </StackPanel>
+            <TextBlock x:Name="MessageText" Margin="0,14,0,0" FontSize="14" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock x:Name="TimeText" Margin="0,10,0,0" FontSize="12" Foreground="{StaticResource AccentSoft}" />
+
+            <Grid Margin="0,22,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="SnoozeBox" Grid.Column="0" MinWidth="100" />
+                <Button Grid.Column="1" Content="Remind me later" Margin="8,0,0,0" Click="OnSnooze" />
+                <ui:Button Grid.Column="3" Content="Done" Appearance="Primary" MinWidth="90" Click="OnDone" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

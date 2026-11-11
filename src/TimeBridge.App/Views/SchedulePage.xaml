@@ -1,0 +1,242 @@
+﻿<UserControl x:Class="TimeBridge.App.Views.SchedulePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:ctl="clr-namespace:TimeBridge.App.Controls">
+    <Grid x:Name="Page" Margin="20,10,32,28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="480" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.ColumnSpan="3" Margin="0,0,0,16">
+            <TextBlock Text="Daily schedule" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
+                       Text="Pick your city or country to get prayer times with start and end times, then add your own routine: sleep, rest, meals and more. Reminders pop up on time, even when TimeBridge is minimised." />
+        </StackPanel>
+
+        <!-- Prayer times -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="🕌  Prayer times" FontSize="18" FontWeight="SemiBold" />
+                        <Border Style="{StaticResource Pill}" HorizontalAlignment="Right">
+                            <TextBlock Text="CALCULATED" FontSize="10" FontWeight="SemiBold" Foreground="#C7D2FE" />
+                        </Border>
+                    </Grid>
+
+                    <TextBlock Text="Country / city" Style="{StaticResource FieldLabel}" />
+                    <ComboBox ItemsSource="{Binding Cities}" DisplayMemberPath="Label" SelectedValuePath="Id"
+                              SelectedValue="{Binding CityId}" HorizontalAlignment="Stretch" />
+
+                    <TextBlock Text="Calculation method" Style="{StaticResource FieldLabel}" />
+                    <ComboBox ItemsSource="{Binding Methods}" DisplayMemberPath="Label" SelectedValuePath="Method"
+                              SelectedValue="{Binding Method}" HorizontalAlignment="Stretch" />
+
+                    <TextBlock Text="Asr calculation" Style="{StaticResource FieldLabel}" />
+                    <ComboBox ItemsSource="{Binding AsrChoices}" DisplayMemberPath="Label" SelectedValuePath="Hanafi"
+                              SelectedValue="{Binding Hanafi}" HorizontalAlignment="Stretch" />
+
+                    <TextBlock Text="{Binding CityNote}" Style="{StaticResource Hint}" Margin="0,12,0,0" />
+
+                    <Grid Margin="0,16,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="86" /><ColumnDefinition Width="*" /><ColumnDefinition Width="46" /><ColumnDefinition Width="74" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="PRAYER" Style="{StaticResource Eyebrow}" />
+                        <TextBlock Grid.Column="1" Text="STARTS – ENDS" Style="{StaticResource Eyebrow}" />
+                        <TextBlock Grid.Column="2" Text="ALERT" Style="{StaticResource Eyebrow}" />
+                        <TextBlock Grid.Column="3" Text="ADJUST (MIN)" Style="{StaticResource Eyebrow}" FontSize="9" VerticalAlignment="Center" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Prayers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="8" Padding="8,6" Margin="0,0,0,4">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                                    <Setter Property="Background" Value="#262F5C" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="78" /><ColumnDefinition Width="*" /><ColumnDefinition Width="46" /><ColumnDefinition Width="74" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock><Run Text="{Binding StartText, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="  –  " /><Run Text="{Binding EndText, Mode=OneWay}" /></TextBlock>
+                                            <TextBlock Text="{Binding HomeText}" Style="{StaticResource Hint}" Margin="0,1,0,0"
+                                                       Visibility="{Binding HomeText, Converter={StaticResource NotNullToVis}}" />
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="2" IsChecked="{Binding AlertEnabled, Mode=TwoWay}" MinWidth="0" ToolTip="Remind me for this prayer" />
+                                        <ComboBox Grid.Column="3" ItemsSource="{x:Static ctl:PrayerOffsets.Choices}" SelectedItem="{Binding Offset, Mode=TwoWay}"
+                                                  Padding="8,3,0,3" ToolTip="Shift this prayer earlier (-) or later (+) to match your local mosque" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding SunriseText}" Style="{StaticResource Hint}" Margin="8,6,0,0" />
+
+                    <Separator Margin="0,14,0,8" />
+                    <CheckBox Content="Remind me for the prayers ticked above" IsChecked="{Binding AlertEnabled}" />
+                    <ComboBox ItemsSource="{Binding AlertChoices}" DisplayMemberPath="Label" SelectedValuePath="Minutes"
+                              SelectedValue="{Binding AlertMinutes}" HorizontalAlignment="Left" MinWidth="200" Margin="0,10,0,0" />
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,12,0,0"
+                               Text="Times are calculated from the sun's position, so they can differ from your local mosque by a few minutes. Use Adjust to match the timetable you follow." />
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- Timeline + routine -->
+        <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="📅  My day" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding TodayText}" Style="{StaticResource Hint}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Timeline}" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="8" Padding="10,7" Margin="0,0,0,4">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsNext}" Value="True">
+                                                        <Setter Property="Background" Value="#1B2347" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                                        <Setter Property="Background" Value="#2A3566" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="34" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="70" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Emoji}" FontFamily="Segoe UI Emoji" FontSize="17" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Title}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2" Text="{Binding TimeText}" VerticalAlignment="Center" Margin="8,0" />
+                                            <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AccentSoft}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding Tag}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsNext}" Value="True"><Setter Property="Text" Value="NEXT" /></DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsNow}" Value="True"><Setter Property="Text" Value="NOW" /></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="🌙  My routine" FontSize="18" FontWeight="SemiBold" />
+                            <Button Content="Add suggested routine" Command="{Binding AddSuggestedCommand}" HorizontalAlignment="Right" Padding="12,4" />
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Routine}" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="8" Padding="10,8" Margin="0,0,0,6" Background="#171F3A">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="34" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Emoji}" FontFamily="Segoe UI Emoji" FontSize="18" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                                <TextBlock Style="{StaticResource Hint}"><Run Text="{Binding WhenText, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding DaysText, Mode=OneWay}" /></TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <CheckBox IsChecked="{Binding IsEnabled, Mode=OneWay}" ToolTip="Active: shown in My day and reminds you" MinWidth="0"
+                                                          Command="{Binding DataContext.ToggleRoutineCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                                <Button Content="Edit" Padding="10,3" Margin="6,0,0,0"
+                                                        Command="{Binding DataContext.EditRoutineCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                                <Button Content="Delete" Padding="10,3" Margin="6,0,0,0"
+                                                        Command="{Binding DataContext.DeleteRoutineCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Margin="0,10,0,0" Padding="16" CornerRadius="10" Background="#141C36" BorderBrush="#2B3960" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Eyebrow}">
+                                            <Setter Property="Text" Value="ADD TO MY ROUTINE" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEditing}" Value="True"><Setter Property="Text" Value="EDIT ROUTINE BLOCK" /></DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Activity" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding Kinds}" DisplayMemberPath="Label" SelectedValuePath="Id"
+                                                  SelectedValue="{Binding Kind}" HorizontalAlignment="Stretch" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Name" Style="{StaticResource FieldLabel}" />
+                                        <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Starts" Style="{StaticResource FieldLabel}" />
+                                        <ctl:TimePicker Value="{Binding Start, Mode=TwoWay}" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Ends" Style="{StaticResource FieldLabel}" />
+                                        <ctl:TimePicker Value="{Binding End, Mode=TwoWay}" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="Repeats on" Style="{StaticResource FieldLabel}" />
+                                <ctl:DaysPicker DataContext="{Binding Days}" />
+                                <CheckBox Content="Active (show in My day and remind me at the start)" IsChecked="{Binding Active}" Margin="0,12,0,0" />
+                                <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,10,0,0"
+                                           Visibility="{Binding Error, Converter={StaticResource NotNullToVis}}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <ui:Button Content="{Binding SaveText}" Command="{Binding SaveRoutineCommand}" Appearance="Primary" Padding="18,6" />
+                                    <Button Content="Cancel" Command="{Binding CancelEditCommand}" Padding="16,6" Margin="8,0,0,0"
+                                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

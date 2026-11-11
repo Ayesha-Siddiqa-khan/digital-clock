@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TimeBridge.Core.Models;
 
@@ -12,6 +12,7 @@ public class TimeBridgeDbContext : DbContext
     public DbSet<Meeting> Meetings => Set<Meeting>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
+    public DbSet<ScheduleItem> ScheduleItems => Set<ScheduleItem>();
     public DbSet<WidgetState> WidgetState => Set<WidgetState>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder b)
@@ -50,6 +51,17 @@ public class TimeBridgeDbContext : DbContext
             e.HasIndex(x => new { x.Status, x.TriggerUtc });
             e.HasOne(x => x.Meeting).WithMany(x => x.Reminders)
                 .HasForeignKey(x => x.MeetingId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        m.Entity<ScheduleItem>(e =>
+        {
+            e.ToTable("ScheduleItems");
+            e.Property(x => x.Kind).IsRequired().HasMaxLength(40);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(120);
+            e.Property(x => x.Message).HasMaxLength(500);
+            e.Property(x => x.Category).HasConversion<int>();
+            e.Property(x => x.Mode).HasConversion<int>();
+            e.HasIndex(x => new { x.Category, x.SortOrder });
         });
 
         m.Entity<AppSetting>(e =>

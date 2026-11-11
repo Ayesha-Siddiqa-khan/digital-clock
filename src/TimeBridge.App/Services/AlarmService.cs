@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Toolkit.Uwp.Notifications;
 using TimeBridge.App.Views;
 using TimeBridge.Core.Services;
@@ -12,18 +12,20 @@ public sealed class AlarmService
     const string ToastGroup = "alarms";
 
     readonly AlarmScheduler _scheduler;
+    readonly ReminderEngine _engine;
     readonly SettingsService _settings;
     readonly AlarmSound _sound;
     readonly IClock _clock;
     readonly Dictionary<int, AlarmWindow> _windows = new();
     int _testId;
 
-    public AlarmService(AlarmScheduler scheduler, SettingsService settings, AlarmSound sound, IClock clock)
-    { _scheduler = scheduler; _settings = settings; _sound = sound; _clock = clock; }
+    public AlarmService(AlarmScheduler scheduler, ReminderEngine engine, SettingsService settings, AlarmSound sound, IClock clock)
+    { _scheduler = scheduler; _engine = engine; _settings = settings; _sound = sound; _clock = clock; }
 
     public void Start()
     {
         _scheduler.AlarmRaised += a => Application.Current?.Dispatcher.BeginInvoke(() => Show(a));
+        _engine.NoticeRaised += n => Application.Current?.Dispatcher.BeginInvoke(() => ShowNotice(n));
         try { ToastNotificationManagerCompat.OnActivated += OnToastActivated; }
         catch (Exception ex) { ErrorLog.Write(ex); }
     }
@@ -47,6 +49,24 @@ public sealed class AlarmService
         window.Show();
         window.Activate();
         ShowToast(alarm);
+    }
+
+    /// <summary>Shows a prayer / routine / health-break reminder: popup, a single chime and a Windows toast.</summary>
+    public void ShowNotice(NoticeInfo n)
+    {
+        var s = _settings.Current;
+        var home = TimeConversion.FromUtc(_clock.UtcNow, s.HomeTimeZoneId).Local;
+        var window = new NoticeWindow(n, $"{TimeFormats.FormatTime(home)}  ·  {TimeFormats.FormatDate(home)}");
+        window.Resolved += snooze => { if (snooze is int m) _engine.Snooze(n, m); };
+        if (s.AlarmSoundEnabled) System.Media.SystemSounds.Asterisk.Play();
+        window.Show();
+        window.Activate();
+        try
+        {
+            new ToastContentBuilder().AddText(n.Title).AddText(n.Message)
+                .AddAudio(new ToastAudio { Silent = true }).Show();
+        }
+        catch (Exception ex) { ErrorLog.Write(ex); }
     }
 
     /// <summary>Raises a demo alarm (not stored in the database).</summary>

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -45,12 +45,11 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     async Task SaveAsync()
     {
-        await _settings.SaveAsync(new AppSettingsData
-        {
-            HomeTimeZoneId = HomeZoneId, ShowSeconds = ShowSeconds, WidgetOpacity = Math.Round(Opacity, 2),
-            DefaultReminderMinutes = DefaultReminder, SnoozeMinutes = SnoozeMinutes,
-            AlarmSoundEnabled = AlarmSound, StartWithWindows = StartWithWindows
-        });
+        var d = _settings.Current.Clone();
+        d.HomeTimeZoneId = HomeZoneId; d.ShowSeconds = ShowSeconds; d.WidgetOpacity = Math.Round(Opacity, 2);
+        d.DefaultReminderMinutes = DefaultReminder; d.SnoozeMinutes = SnoozeMinutes;
+        d.AlarmSoundEnabled = AlarmSound; d.StartWithWindows = StartWithWindows;
+        await _settings.SaveAsync(d);
         StartupService.Apply(StartWithWindows);
         Status = "Settings saved.";
     }

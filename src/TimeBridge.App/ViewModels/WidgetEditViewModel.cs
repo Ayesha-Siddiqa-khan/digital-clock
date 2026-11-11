@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TimeBridge.Core.Models;
 using TimeBridge.Core.Services;
@@ -53,13 +53,9 @@ public partial class WidgetEditViewModel : ObservableObject
                     await _clients.UpdateAsync(c.Id, c.Name, c.City, ClientZoneId);
                 _widget.SelectClientById(id);
             }
-            var d = _settings.Current;
-            await _settings.SaveAsync(new AppSettingsData
-            {
-                HomeTimeZoneId = HomeZoneId, ShowSeconds = ShowSeconds, WidgetOpacity = Math.Round(Opacity, 2),
-                DefaultReminderMinutes = d.DefaultReminderMinutes, SnoozeMinutes = d.SnoozeMinutes,
-                AlarmSoundEnabled = d.AlarmSoundEnabled, StartWithWindows = d.StartWithWindows
-            });
+            var d = _settings.Current.Clone();
+            d.HomeTimeZoneId = HomeZoneId; d.ShowSeconds = ShowSeconds; d.WidgetOpacity = Math.Round(Opacity, 2);
+            await _settings.SaveAsync(d);
             Saved?.Invoke();
         }
         catch (ValidationException ex) { Error = ex.Message; }

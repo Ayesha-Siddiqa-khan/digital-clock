@@ -61,6 +61,7 @@ public partial class App : Application
             Services.GetRequiredService<ClockTicker>().Start();
             Services.GetRequiredService<AlarmService>().Start();
             await Services.GetRequiredService<AlarmScheduler>().StartAsync();
+            Services.GetRequiredService<ReminderEngine>().Start();
 
             var windows = Services.GetRequiredService<WindowManager>();
             CreateTrayIcon(windows);
@@ -90,6 +91,8 @@ public partial class App : Application
         sc.AddSingleton<MeetingService>();
         sc.AddSingleton<WidgetStateService>();
         sc.AddSingleton<AlarmScheduler>();
+        sc.AddSingleton<ScheduleService>();
+        sc.AddSingleton<ReminderEngine>();
 
         sc.AddSingleton<IDialogService, DialogService>();
         sc.AddSingleton<ClockTicker>();
@@ -102,6 +105,8 @@ public partial class App : Application
         sc.AddSingleton<ClientsViewModel>();
         sc.AddSingleton<SettingsViewModel>();
         sc.AddSingleton<StopwatchViewModel>();
+        sc.AddSingleton<ScheduleViewModel>();
+        sc.AddSingleton<HealthViewModel>();
         sc.AddSingleton<MainViewModel>();
         sc.AddTransient<WidgetEditViewModel>();
         return sc.BuildServiceProvider();
@@ -168,6 +173,7 @@ public partial class App : Application
                 // Persist final widget position/size/pin state before closing.
                 Task.Run(() => Services.GetRequiredService<WidgetViewModel>().SaveNowAsync()).Wait(TimeSpan.FromSeconds(3));
                 Services.GetRequiredService<AlarmScheduler>().Dispose();
+                Services.GetRequiredService<ReminderEngine>().Dispose();
             }
             _tray?.Dispose();
             if (_ownsMutex) _mutex?.ReleaseMutex();

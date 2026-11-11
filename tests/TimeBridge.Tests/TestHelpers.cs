@@ -1,4 +1,4 @@
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TimeBridge.Core.Data;
 using TimeBridge.Core.Services;
@@ -20,6 +20,8 @@ public sealed class TestDb : IDbContextFactory<TimeBridgeDbContext>, IDisposable
     public ClientService Clients { get; }
     public MeetingService Meetings { get; }
     public AlarmScheduler Scheduler { get; }
+    public ScheduleService Schedule { get; }
+    public ReminderEngine Engine { get; }
 
     public TestDb()
     {
@@ -30,6 +32,8 @@ public sealed class TestDb : IDbContextFactory<TimeBridgeDbContext>, IDisposable
         Clients = new ClientService(this, Clock);
         Meetings = new MeetingService(this, Clock, Settings);
         Scheduler = new AlarmScheduler(this, Clock, Settings);
+        Schedule = new ScheduleService(this);
+        Engine = new ReminderEngine(Clock, Settings, Schedule);
     }
 
     public TimeBridgeDbContext CreateDbContext() =>

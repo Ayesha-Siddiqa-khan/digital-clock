@@ -8,7 +8,7 @@ namespace TimeBridge.App.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    public const int PageOverview = 0, PageMeetings = 1, PageClients = 2, PageSettings = 3;
+    public const int PageOverview = 0, PageMeetings = 1, PageClients = 2, PageSchedule = 3, PageHealth = 4, PageSettings = 5;
 
     readonly MeetingService _meetingService;
     readonly SettingsService _settings;
@@ -18,10 +18,10 @@ public partial class MainViewModel : ObservableObject
     int _lastMinute = -1;
 
     public MainViewModel(WidgetViewModel clock, MeetingsViewModel meetings, ClientsViewModel clients,
-        SettingsViewModel settings, MeetingService meetingService, SettingsService settingsService,
+        SettingsViewModel settings, ScheduleViewModel schedule, HealthViewModel health, MeetingService meetingService, SettingsService settingsService,
         AlarmScheduler scheduler, ClockTicker ticker, WindowManager windows)
     {
-        Clock = clock; Meetings = meetings; Clients = clients; Settings = settings;
+        Clock = clock; Meetings = meetings; Clients = clients; Settings = settings; Schedule = schedule; Health = health;
         _meetingService = meetingService; _settings = settingsService; _scheduler = scheduler;
         _ticker = ticker; _windows = windows;
     }
@@ -30,6 +30,8 @@ public partial class MainViewModel : ObservableObject
     public MeetingsViewModel Meetings { get; }
     public ClientsViewModel Clients { get; }
     public SettingsViewModel Settings { get; }
+    public ScheduleViewModel Schedule { get; }
+    public HealthViewModel Health { get; }
     public ObservableCollection<MeetingItem> Upcoming { get; } = new();
 
     [ObservableProperty] int _navIndex;
@@ -41,6 +43,8 @@ public partial class MainViewModel : ObservableObject
         Settings.Initialize();
         await Meetings.InitializeAsync();
         await Clients.InitializeAsync();
+        await Schedule.InitializeAsync();
+        await Health.InitializeAsync();
         await RefreshUpcomingAsync();
         _meetingService.Changed += async (_, _) => await Ui.Run(RefreshUpcomingAsync);
         _scheduler.RemindersChanged += async (_, _) => await Ui.Run(RefreshUpcomingAsync);
