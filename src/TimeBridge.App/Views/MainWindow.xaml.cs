@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TimeBridge.App.Services;
 using TimeBridge.App.ViewModels;
 using Wpf.Ui.Controls;
@@ -22,8 +22,10 @@ public partial class MainWindow : FluentWindow
         if (!_windows.Exiting)
         {
             e.Cancel = true;
-            Hide();
+            WindowState = System.Windows.WindowState.Minimized; // stays in the taskbar; alarms keep running
         }
         base.OnClosing(e);
     }
 }
+
+

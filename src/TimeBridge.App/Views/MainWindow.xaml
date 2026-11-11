@@ -1,4 +1,4 @@
-<ui:FluentWindow x:Class="TimeBridge.App.Views.MainWindow"
+﻿<ui:FluentWindow x:Class="TimeBridge.App.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -171,6 +171,7 @@
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
+                        <Button Content="Exit TimeBridge" Command="{Binding ExitAppCommand}" HorizontalAlignment="Stretch" Margin="0,8,0,0" ToolTip="Quit completely (stops alarms)" />
                     </StackPanel>
                 </Border>
             </DockPanel>
@@ -505,3 +506,5 @@
         </Grid>
     </Grid>
 </ui:FluentWindow>
+
+

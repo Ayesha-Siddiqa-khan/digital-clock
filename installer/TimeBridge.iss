@@ -24,9 +24,14 @@ Source: "..\dist\publish\TimeBridge.exe"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{group}\TimeBridge"; Filename: "{app}\TimeBridge.exe"
 Name: "{autodesktop}\TimeBridge"; Filename: "{app}\TimeBridge.exe"; Tasks: desktopicon
+; Best effort: Windows has no supported installer API for pinning, so this drops the shortcut in the
+; user's pinned-taskbar folder. It works on most Windows 10 builds; on some Windows 11 builds the user
+; may need to right-click the running app or Start Menu entry and choose "Pin to taskbar".
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\TimeBridge"; Filename: "{app}\TimeBridge.exe"; Tasks: taskbaricon
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a &desktop shortcut"; Flags: unchecked
+Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Shortcuts:"
+Name: "taskbaricon"; Description: "Pin TimeBridge to the &taskbar"; GroupDescription: "Shortcuts:"
 
 [Run]
 Filename: "{app}\TimeBridge.exe"; Description: "Launch TimeBridge"; Flags: nowait postinstall skipifsilent

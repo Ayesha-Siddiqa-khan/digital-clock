@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using TimeBridge.App.ViewModels;
 using TimeBridge.App.Views;
@@ -19,10 +19,11 @@ public sealed class WindowManager
     public bool IsWidgetShown => _widget?.IsVisible == true;
     public event Action<bool>? WidgetVisibilityChanged;
 
-    public void ShowDashboard(int? page = null)
+    public void ShowDashboard(int? page = null, bool minimized = false)
     {
         _main ??= new MainWindow(_sp.GetRequiredService<MainViewModel>(), this);
         if (page is int p) _sp.GetRequiredService<MainViewModel>().NavIndex = p;
+        if (minimized) { _main.WindowState = WindowState.Minimized; _main.Show(); return; }
         if (_main.WindowState == WindowState.Minimized) _main.WindowState = WindowState.Normal;
         _main.Show();
         _main.Activate();
@@ -75,3 +76,5 @@ public sealed class WindowManager
         Application.Current.Shutdown();
     }
 }
+
+

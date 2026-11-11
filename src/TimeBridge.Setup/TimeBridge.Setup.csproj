@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>TimeBridge-Setup</AssemblyName>
+    <RootNamespace>TimeBridge.Setup</RootNamespace>
+    <ApplicationIcon>..\TimeBridge.App\Assets\app.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>TimeBridge Setup</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The published, self-contained TimeBridge.exe (run publish first). -->
+    <EmbeddedResource Include="..\..\dist\publish\TimeBridge.exe" LogicalName="TimeBridge.exe" />
+  </ItemGroup>
+
+</Project>

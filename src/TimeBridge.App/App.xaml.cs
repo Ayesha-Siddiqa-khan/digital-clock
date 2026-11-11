@@ -21,6 +21,7 @@ public partial class App : Application
     EventWaitHandle? _showEvent;
     TaskbarIcon? _tray;
     bool _started;
+    bool _ownsMutex;
 
     public static IServiceProvider Services { get; private set; } = null!;
 
@@ -30,6 +31,7 @@ public partial class App : Application
 
         _mutex = new Mutex(true, MutexName, out var isFirst);
         _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
+        _ownsMutex = isFirst;
         if (!isFirst)
         {
             // Another instance owns the tray + alarms: ask it to show its dashboard, then leave.
@@ -65,7 +67,7 @@ public partial class App : Application
             ListenForSecondInstance(windows);
 
             if (widgetVm.State.IsVisible) await windows.ShowWidgetAsync();
-            if (!minimized) windows.ShowDashboard(); // --minimized (autostart) leaves only the widget + tray
+            windows.ShowDashboard(minimized: minimized); // autostart (--minimized) keeps a minimised taskbar button
             _started = true;
         }
         catch (Exception ex)
@@ -164,9 +166,12 @@ public partial class App : Application
                 Services.GetRequiredService<AlarmScheduler>().Dispose();
             }
             _tray?.Dispose();
-            _mutex?.ReleaseMutex();
+            if (_ownsMutex) _mutex?.ReleaseMutex();
         }
         catch (Exception ex) { ErrorLog.Write(ex); }
         base.OnExit(e);
     }
 }
+
+
+
