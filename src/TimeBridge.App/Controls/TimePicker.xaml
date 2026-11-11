@@ -1,0 +1,17 @@
+<UserControl x:Class="TimeBridge.App.Controls.TimePicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ComboBox x:Name="HourBox" Grid.Column="0" SelectionChanged="OnChanged" ToolTip="Hour (12-hour clock)" />
+        <TextBlock Grid.Column="1" Text=":" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold" />
+        <ComboBox x:Name="MinuteBox" Grid.Column="2" SelectionChanged="OnChanged" ToolTip="Minute" />
+        <ComboBox x:Name="PeriodBox" Grid.Column="4" SelectionChanged="OnChanged" ToolTip="AM / PM" />
+    </Grid>
+</UserControl>

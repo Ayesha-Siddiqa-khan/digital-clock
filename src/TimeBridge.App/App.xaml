@@ -1,0 +1,26 @@
+﻿<Application x:Class="TimeBridge.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:TimeBridge.App.Converters"
+             ShutdownMode="OnExplicitShutdown"
+             DispatcherUnhandledException="OnUnhandledException">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+            <conv:NotNullToVisibilityConverter x:Key="NotNullToVis" />
+            <conv:NullToVisibilityConverter x:Key="NullToVis" />
+            <conv:InverseBoolConverter x:Key="InverseBool" />
+            <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+            <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+            <SolidColorBrush x:Key="AccentSoft" Color="#A5B4FC" />
+            <SolidColorBrush x:Key="DangerBrush" Color="#F87171" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
